@@ -40,6 +40,10 @@ class Blame(object):
         bucket_big_enough = lambda b: len(lines_in_bucket(b)) > min_lines
         return filter(bucket_big_enough, buckets)
 
-    def filter(self, min_lines=5, months=5):
+    def filter(self, min_lines, months):
+        """
+        Filters a gitpython blame result to include consecutive lines larger
+        than ``min_lines`` and older than ``months``.
+        """
         buckets = self._filter_by_age(self.blame, months)
         return self._filter_by_lines(buckets, min_lines)
