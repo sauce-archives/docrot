@@ -13,18 +13,18 @@ formatting is only being tested against github's wiki format.
 Installation
 ------------
 
-Clone the repo, then::
+Clone the repo, then:
 
 	pip install .
 
 Usage
 -----
 
-Just ``cd`` to your documentation repo and run::
+Just ``cd`` to your documentation repo and run:
 
 	docrot
 
 By default, areas of documentation that are 5 months old and at least 5 lines
-long will be shown.  For additional options and customization::
+long will be shown.  For additional options and customization:
 
 	docrot -h
