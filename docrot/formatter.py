@@ -18,14 +18,14 @@ class FormatterBase(object):
         for bucket in buckets:
             output += self.format_separator() + "\n"
             for commit, lines_changed in bucket:
-                output += self.format_commit(commit, lines_changed) + "\n"
+                output += self.format_commit(commit, lines_changed)
         return output
 
 
 class TextFormatter(FormatterBase):
 
     def format_separator(self):
-        return "-" * 79
+        return "\n" + "-" * 79 + "\n"
 
     def format_commit(self, commit, lines_changed):
         output = ""
@@ -39,5 +39,7 @@ class TextFormatter(FormatterBase):
         # Lines changed
         for i, line in enumerate(lines_changed):
             output += pre_first if i == 0 else pre_empty
-            output += line + "\n"
+            output += line
+            if "\n" not in line:
+                output += "\n"
         return output
