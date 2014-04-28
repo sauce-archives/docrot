@@ -4,44 +4,6 @@ from itertools import izip_longest, islice
 from time import mktime
 
 
-class Peeker(object):
-
-    def __init__(self, iterable):
-        self._i = -1
-        self._iter = iterable
-
-    def __iter__(self):
-        return self
-
-    def _get(self, motion=1, peek=False):
-        i = self._i + motion
-
-        # The beginning or the end?
-        if i + 1 == len(self._iter) or i < 0:
-            if peek:
-                return None
-            else:
-                raise StopIteration
-
-        # Get the value
-        _return = self._iter[i]
-        if not peek:
-            self._i += motion
-        return _return
-
-    def curr(self):
-        return self._get(motion=0, peek=True)
-
-    def next(self):
-        return self._get(motion=1, peek=False)
-
-    def prev(self):
-        return self._get(motion=-1, peek=True)
-
-    def peek(self):
-        return self._get(motion=1, peek=True)
-
-
 class Blame(object):
 
     def __init__(self, blame):
@@ -57,6 +19,10 @@ class Blame(object):
         return commit_date < datetime.today() - timedelta(days=months * 30)
 
     def _filter_by_age(self, blame, months):
+        """
+        Groups the lines of a blame into continuous buckets that fit the age
+        thresshold.
+        """
         buckets = []
 
         bucket = []
@@ -76,5 +42,4 @@ class Blame(object):
 
     def filter(self, min_lines=5, months=5):
         buckets = self._filter_by_age(self.blame, months)
-        buckets = self._filter_by_lines(buckets, min_lines)
-        return buckets
+        return self._filter_by_lines(buckets, min_lines)
