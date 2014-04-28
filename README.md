@@ -15,16 +15,16 @@ Installation
 
 Clone the repo, then::
 
-	``pip install .``
+	pip install .
 
 Usage
 -----
 
 Just ``cd`` to your documentation repo and run::
 
-	``docrot``
+	docrot
 
 By default, areas of documentation that are 5 months old and at least 5 lines
 long will be shown.  For additional options and customization::
 
-	``docrot -h``
+	docrot -h
