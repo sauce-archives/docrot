@@ -12,6 +12,7 @@ setup(
     long_description=open('README.md').read(),
     install_requires=[
         "gitpython >= 0.1.7",
+        "clint >= 0.3.7",
     ],
     entry_points=dict(
         console_scripts=[
