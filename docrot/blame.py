@@ -4,6 +4,11 @@ from itertools import izip_longest, islice
 from time import mktime
 
 
+def is_older_than(commit, months):
+    commit_date = datetime.fromtimestamp(mktime(commit.authored_date))
+    return commit_date < datetime.today() - timedelta(days=months * 30)
+
+
 class Blame(object):
 
     def __init__(self, blame):
@@ -14,10 +19,6 @@ class Blame(object):
         # ... for some reason gitpython blame gives a None commit at the end
         return filter(lambda x: x[0] is not None, self._blame)
 
-    def _is_older_than(self, commit, months):
-        commit_date = datetime.fromtimestamp(mktime(commit.authored_date))
-        return commit_date < datetime.today() - timedelta(days=months * 30)
-
     def _filter_by_age(self, blame, months):
         """
         Groups the lines of a blame into continuous buckets that fit the age
@@ -27,7 +28,7 @@ class Blame(object):
 
         bucket = []
         for commit, lines_changed in blame:
-            if self._is_older_than(commit, months):
+            if is_older_than(commit, months):
                 bucket.append((commit, lines_changed))
             elif bucket:
                 buckets.append(bucket)

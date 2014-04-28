@@ -29,7 +29,7 @@ def main():
         blame = git.Blob.blame(repo, latest_commit, blob.name)
         blame = Blame(blame)
         buckets = blame.filter(min_lines=args.threshhold, months=args.months)
-        print TextFormatter().format(buckets)
+        TextFormatter(args.months).format(buckets)
 
 
 if __name__ == '__main__':
