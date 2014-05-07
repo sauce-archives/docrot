@@ -1,9 +1,6 @@
 import argparse
 import os
 
-import git
-
-from blame import Blame
 from formatter import TextFormatter
 
 
@@ -22,14 +19,7 @@ def main():
     args = parser.parse_args()
 
     # Process Repo
-    repo = git.Repo(args.directory)
-    latest_commit = repo.commits()[0]
-    blobs = latest_commit.tree.values()
-    for blob in blobs:
-        blame = git.Blob.blame(repo, latest_commit, blob.name)
-        blame = Blame(blame)
-        buckets = blame.filter(min_lines=args.threshhold, months=args.months)
-        TextFormatter(args.months).format(buckets)
+    TextFormatter(args.directory, args.threshhold, args.months, 5).format()
 
 
 if __name__ == '__main__':

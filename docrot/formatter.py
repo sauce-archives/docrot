@@ -2,8 +2,9 @@ from functools import partial
 import time
 
 from clint.textui import puts, colored
+import git
 
-from blame import is_older_than
+from blame import is_older_than, Blame
 
 
 p = partial(puts, newline=False)
@@ -11,26 +12,38 @@ p = partial(puts, newline=False)
 
 class FormatterBase(object):
 
+    def __init__(self, directory, min_lines, months):
+        self.min_lines = min_lines
+        self.months = months
+        self.repo = git.Repo(directory)
+        self.latest_commit = self.repo.commits()[0]
+        self.blobs = self.latest_commit.tree.values()
+
     def format_separator(self):
         p("")
 
     def format_commit(self, commit, lines_changed):
         p("")
 
-    def format(self, buckets):
-        # Discard empty buckets
-        buckets = filter(lambda b: len(b) > 0, buckets)
+    def format(self):
+        for blob in self.blobs:
+            blame = git.Blob.blame(self.repo, self.latest_commit, blob.name)
+            blame = Blame(blame)
+            buckets = blame.filter(min_lines=self.min_lines,
+                                   months=self.months)
+            # Discard empty buckets
+            buckets = filter(lambda b: len(b) > 0, buckets)
 
-        # Do the formatting
-        for bucket in buckets:
-            self.format_separator()
-            for commit, lines_changed in bucket:
-                self.format_commit(commit, lines_changed)
+            # Do the formatting
+            for bucket in buckets:
+                self.format_separator()
+                for commit, lines_changed in bucket:
+                    self.format_commit(commit, lines_changed)
 
 
 class TextFormatter(FormatterBase):
 
-    def __init__(self, color_months=None):
+    def __init__(self, directory, min_lines, months, color_months=None):
         """
         An optional ``color_months`` can be specified to color commits and
         dates depending on how far the commit is after the age in months by
@@ -40,6 +53,7 @@ class TextFormatter(FormatterBase):
         colored green, commits older than 10 months will be colored yellow,
         and commits older than 15 months will be colored red.
         """
+        super(TextFormatter, self).__init__(directory, min_lines, months)
         self._months = color_months
 
     def format_separator(self):
@@ -69,3 +83,8 @@ class TextFormatter(FormatterBase):
             p(line)
             if "\n" not in line:
                 p("\n")
+
+
+class HtmlFormatter(FormatterBase):
+
+    pass
