@@ -1,13 +1,48 @@
-table {
-    border: 1px solid black;
-    width: 100%;
-    margin-bottom: 10px;
-}
 body {
-    padding: 10%;
-    font-family: monospace;
+	padding: 10%;
+	font-family: monospace;
+	background-color: #E9E9E9;
 }
 
-table td:nth-child(2), table td:nth-child(1) {
-    padding-right: 10px
+table {
+	border: 1px solid black;
+	width: 100%;
+	margin-bottom: 10px;
+	border-spacing: 0;
+	border-collapse: separate;
 }
+
+	thead td {
+		padding: 20px 20px;
+		font-family: sans-serif;
+		font-weight: lighter;
+		font-size: 13px;
+	}
+
+		tr.old {
+			background-color: rgba(241,26,31, 0.35);
+		}
+
+		tr.medium {
+			background-color: rgba(255,153,0, 0.45);
+		}
+
+		tr.new {
+			background-color: rgba(50,153,187, 0.25)
+		}
+		
+		td {
+			border-bottom: 1px solid #E9E9E9;
+		}
+
+			table td:nth-child(2), table td:nth-child(1) {
+				padding-right: 10px;
+			}
+
+			tbody tr:not(.first) td:nth-child(1),
+		       	tbody tr:not(.first) td:nth-child(2) {
+				color: #aaa;
+			}
+
+
+

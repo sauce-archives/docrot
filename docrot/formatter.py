@@ -14,11 +14,28 @@ p = partial(puts, newline=False)
 class FormatterBase(object):
 
     def __init__(self, directory, min_lines, months):
+        """
+        Coloring of dates will depend on how far the commit is after the
+        age in months by multiples of 3.
+
+        For instance, if ``5`` is passed, commits older than 5 months will be
+        colored green, commits older than 10 months will be colored yellow,
+        and commits older than 15 months will be colored red.
+        """
         self.min_lines = min_lines
         self.months = months
         self.repo = git.Repo(directory)
         self.latest_commit = self.repo.commits()[0]
         self.blobs = self.latest_commit.tree.values()
+
+    def _get_relative_age(self, commit):
+        # Used for determining what visual style the commit should have.
+        if is_older_than(commit, self.months * 3):
+            return 'old'
+        if is_older_than(commit, self.months * 2):
+            return 'medium'
+        else:
+            return 'new'
 
     def format_blob(self, blob):
         blame = git.Blob.blame(self.repo, self.latest_commit, blob.name)
@@ -46,28 +63,14 @@ class FormatterBase(object):
 
 class TextFormatter(FormatterBase):
 
-    def __init__(self, directory, min_lines, months, color_months=None):
-        """
-        An optional ``color_months`` can be specified to color commits and
-        dates depending on how far the commit is after the age in months by
-        multipes of 3.
-
-        For instance, if ``5`` is passed, commits older than 5 months will be
-        colored green, commits older than 10 months will be colored yellow,
-        and commits older than 15 months will be colored red.
-        """
-        super(TextFormatter, self).__init__(directory, min_lines, months)
-        self._months = color_months
-
     def _color_date(self, commit, text):
-        if not self._months:
-            return text
-        if is_older_than(commit, self._months * 3):
-            return colored.red(text)
-        if is_older_than(commit, self._months * 2):
-            return colored.yellow(text)
-        else:
-            return colored.green(text)
+        age = self._get_relative_age(commit)
+        ages_to_colors = {
+            'old': colored.red,
+            'medium': colored.yellow,
+            'new': colored.green,
+        }
+        return ages_to_colors.get(age)(text)
 
     def format_blob(self, blob):
         p("/" + "-" * 78 + "\n")
@@ -106,11 +109,16 @@ class HtmlFormatter(FormatterBase):
     def format_blob(self, blob):
         p("<table>")
         p("<thead><td colspan=3>{}</td></thead>".format(blob.name))
+        p("<tbody>")
         super(HtmlFormatter, self).format_blob(blob)
+        p("</tbody>")
         p("</table>")
 
     def format_line(self, commit, line, first=False):
-        p("<tr>")
+        p("<tr class='{} {}'>".format(
+            self._get_relative_age(commit),
+            "first" if first else "",  # allow for shading of the "..."
+        ))
         if first:
             cols = (commit.id[:10],
                     time.strftime("%m/%d/%y", commit.authored_date))

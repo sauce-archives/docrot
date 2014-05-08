@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='docrot',
-    version='0.2.0',
+    version='0.2.5',
     author='Sauce Labs',
     author_email='help@saucelabs.com',
     packages=['docrot'],

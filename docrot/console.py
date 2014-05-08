@@ -22,7 +22,7 @@ def main():
 
     # Process Repo
     if args.format == "text":
-        TextFormatter(args.directory, args.threshhold, args.months, 5).format()
+        TextFormatter(args.directory, args.threshhold, args.months).format()
     elif args.format == "html":
         HtmlFormatter(args.directory, args.threshhold, args.months).format()
 
