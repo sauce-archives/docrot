@@ -1,4 +1,5 @@
 from functools import partial
+import os.path
 import time
 
 from clint.textui import puts, colored
@@ -91,8 +92,20 @@ class TextFormatter(FormatterBase):
 
 class HtmlFormatter(FormatterBase):
 
+    def format(self, *args, **kwargs):
+        p("<style>{}</style>".format(self._get_css()))
+        super(HtmlFormatter, self).format(*args, **kwargs)
+
+    def _get_css(self):
+        basepath = os.path.dirname(__file__)
+        filepath = os.path.abspath(os.path.join(
+            basepath, "assets", "style.css"))
+        with open(filepath, 'rb') as f:
+            return "".join(f.readlines())
+
     def format_blob(self, blob):
         p("<table>")
+        p("<thead><td colspan=3>{}</td></thead>".format(blob.name))
         super(HtmlFormatter, self).format_blob(blob)
         p("</table>")
 

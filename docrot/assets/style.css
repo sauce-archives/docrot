@@ -1,0 +1,13 @@
+table {
+    border: 1px solid black;
+    width: 100%;
+    margin-bottom: 10px;
+}
+body {
+    padding: 10%;
+    font-family: monospace;
+}
+
+table td:nth-child(2), table td:nth-child(1) {
+    padding-right: 10px
+}
