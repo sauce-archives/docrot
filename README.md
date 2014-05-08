@@ -28,3 +28,14 @@ By default, areas of documentation that are 5 months old and at least 5 lines
 long will be shown.  For additional options and customization:
 
 	docrot -h
+
+Output
+------
+
+You can output the results as text (default):
+
+	docrot -f text
+
+Or HTML:
+
+	docrot -f html
