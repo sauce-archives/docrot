@@ -1,19 +1,17 @@
 from functools import partial
 import os.path
+import sys
 import time
 
-from clint.textui import puts, colored
+from clint.textui import colored, puts
 import git
 
 from blame import is_older_than, Blame
 
 
-p = partial(puts, newline=False)
-
-
 class FormatterBase(object):
 
-    def __init__(self, directory, min_lines, months):
+    def __init__(self, directory, min_lines, months, stream=sys.stdout):
         """
         Coloring of dates will depend on how far the commit is after the
         age in months by multiples of 3.
@@ -22,6 +20,7 @@ class FormatterBase(object):
         colored green, commits older than 10 months will be colored yellow,
         and commits older than 15 months will be colored red.
         """
+        self.update_stream(stream)
         self.min_lines = min_lines
         self.months = months
         self.repo = git.Repo(directory)
@@ -36,6 +35,13 @@ class FormatterBase(object):
             return 'medium'
         else:
             return 'new'
+
+    def update_stream(self, stream):
+        """
+        Created to allow on-the-fly injecting of new streams, such as when
+        splitting output across multiple files.
+        """
+        self.p = partial(puts, newline=False, stream=stream.write)
 
     def format_blob(self, blob):
         blame = git.Blob.blame(self.repo, self.latest_commit, blob.name)
@@ -54,7 +60,7 @@ class FormatterBase(object):
                     first = False
 
     def format_line(self, commit, line, first=False):
-        p("")
+        self.p("")
 
     def format(self):
         for blob in self.blobs:
@@ -70,13 +76,13 @@ class TextFormatter(FormatterBase):
             'medium': colored.yellow,
             'new': colored.green,
         }
-        return ages_to_colors.get(age)(text)
+        return str(ages_to_colors.get(age)(text))
 
     def format_blob(self, blob):
-        p("/" + "-" * 78 + "\n")
-        p("| {} \n".format(blob.name))
+        self.p("/" + "-" * 78 + "\n")
+        self.p("| {} \n".format(blob.name))
         super(TextFormatter, self).format_blob(blob)
-        p("\\" + "-" * 78 + "\n\n")
+        self.p("\\" + "-" * 78 + "\n\n")
 
     def format_line(self, commit, line, first=False):
         # Left column
@@ -87,16 +93,16 @@ class TextFormatter(FormatterBase):
         pre_empty = "{}\t{}\t".format("." * 10, "." * 8)
 
         # Print the line
-        p(pre_first if first else pre_empty)
-        p(line)
+        self.p(pre_first if first else pre_empty)
+        self.p(line)
         if "\n" not in line:
-            p("\n")
+            self.p("\n")
 
 
 class HtmlFormatter(FormatterBase):
 
     def format(self, *args, **kwargs):
-        p("<style>{}</style>".format(self._get_css()))
+        self.p("<style>{}</style>".format(self._get_css()))
         super(HtmlFormatter, self).format(*args, **kwargs)
 
     def _get_css(self):
@@ -107,15 +113,15 @@ class HtmlFormatter(FormatterBase):
             return "".join(f.readlines())
 
     def format_blob(self, blob):
-        p("<table>")
-        p("<thead><td colspan=3>{}</td></thead>".format(blob.name))
-        p("<tbody>")
+        self.p("<table>")
+        self.p("<thead><td colspan=3>{}</td></thead>".format(blob.name))
+        self.p("<tbody>")
         super(HtmlFormatter, self).format_blob(blob)
-        p("</tbody>")
-        p("</table>")
+        self.p("</tbody>")
+        self.p("</table>")
 
     def format_line(self, commit, line, first=False):
-        p("<tr class='{} {}'>".format(
+        self.p("<tr class='{} {}'>".format(
             self._get_relative_age(commit),
             "first" if first else "",  # allow for shading of the "..."
         ))
@@ -126,6 +132,6 @@ class HtmlFormatter(FormatterBase):
             cols = ("." * 10, "." * 8)
 
         cols = cols + (line,)
-        p("<td>{}</td><td>{}</td><td>{}</td>".format(*cols))
+        self.p("<td>{}</td><td>{}</td><td>{}</td>".format(*cols))
 
-        p("</tr>")
+        self.p("</tr>")

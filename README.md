@@ -39,3 +39,7 @@ You can output the results as text (default):
 Or HTML:
 
 	docrot -f html
+
+Or you can split the output into distinct files:
+
+	docrot -o /tmp/output-dir/
