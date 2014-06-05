@@ -62,6 +62,17 @@ class FormatterBase(object):
     def format_line(self, commit, line, first=False):
         self.p("")
 
+    def format_URL_link(self, title):
+        if title.endswith('.md'):
+            title=title[:-len('.md')]
+        elif title.endswith('.textile'):
+            title=title[:-len('.textile')]
+        elif title.endswith('.mediawiki'):
+            title=title[:-len('.mediawiki')]
+        else:
+            title=""
+        return "https://github.com/saucelabs/sauce/wiki/" + title
+
     def format(self):
         for blob in self.blobs:
             self.format_blob(blob)
@@ -114,7 +125,8 @@ class HtmlFormatter(FormatterBase):
 
     def format_blob(self, blob):
         self.p("<table>")
-        self.p("<thead><td colspan=3>{}</td></thead>".format(blob.name))
+        #adds a link to the original git wiki 
+        self.p("<thead><td colspan=3>{}</br><h4>Original Git Wiki: </h4><a href=%s>%s</a></td></thead>".format(blob.name) % (self.format_URL_link(blob.name),self.format_URL_link(blob.name)))
         self.p("<tbody>")
         super(HtmlFormatter, self).format_blob(blob)
         self.p("</tbody>")
@@ -133,5 +145,4 @@ class HtmlFormatter(FormatterBase):
 
         cols = cols + (line,)
         self.p("<td>{}</td><td>{}</td><td>{}</td>".format(*cols))
-
         self.p("</tr>")
