@@ -70,7 +70,7 @@ class FormatterBase(object):
         elif title.endswith('.mediawiki'):
             title=title[:-len('.mediawiki')]
         else:
-            title=""
+            title=title
         return "https://github.com/saucelabs/sauce/wiki/" + title
 
     def format(self):
