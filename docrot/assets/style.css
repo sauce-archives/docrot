@@ -4,6 +4,10 @@ body {
 	background-color: #E9E9E9;
 }
 
+h4 {
+	display: inline;
+}
+
 table {
 	border: 1px solid black;
 	width: 100%;
